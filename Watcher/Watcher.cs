@@ -11,16 +11,16 @@ namespace WatcherLibrary
         /// <summary>
         /// Instantiates a <see cref="Watcher"/> with a given directory, watching for changes in all files.
         /// </summary>
-        /// <param name="directory">Directory to watch</param>
-        public Watcher(string directory) : this(directory, "")
+        /// <param name="watchDirectory">Directory to watch</param>
+        public Watcher(string watchDirectory, string moveToDirectory) : this(watchDirectory, moveToDirectory, string.Empty)
         { }
 
         /// <summary>
         /// Instantiates a <see cref="Watcher"/> with a given directory, watching for changes only in files that match the specified filter.
         /// </summary>
-        /// <param name="directory">Directory to watch</param>
+        /// <param name="watchDirectory">Directory to watch</param>
         /// <param name="filter">Filter</param>
-        public Watcher(string directory, string filter) : base(directory, filter)
+        public Watcher(string watchDirectory, string moveToDirectory, string filter) : base(watchDirectory, filter)
         {
             NotifyFilter = NotifyFilters.Attributes
                                  | NotifyFilters.CreationTime
