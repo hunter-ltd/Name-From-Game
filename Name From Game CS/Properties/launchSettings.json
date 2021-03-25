@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Name From Game CS": {
+      "commandName": "Project",
+      "commandLineArgs": "R:\\"
+    }
+  }
+}
