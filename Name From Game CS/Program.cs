@@ -36,7 +36,7 @@ namespace NameFromGame
                         {
                             Console.WriteLine($"'{savePath}' doesn't exist or couldn't be found. Please enter a valid directory");
                             return;
-                        } else if(string.IsNullOrEmpty(movePath))
+                        } else if(string.IsNullOrEmpty(movePath) || !Directory.Exists(movePath))
                         {
                             Console.Write($"'{movePath}' doesn't exist or couldn't be found. Would you like the program to create it for you? (y/N)");
                             switch (Console.ReadKey().Key)
