@@ -7,28 +7,13 @@ namespace NameFromGame
 {
     class Program
     {
-        private static void CreateFolder(string path)
+        /// <summary>
+        /// Creates a folder and returns the path of the folder it created
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        private static string CreateFolder(string path)
         {
-            Console.Write($"'{path}' doesn't exist or couldn't be found. Would you like the program to create it for you? (y/N): ");
-            switch (Console.ReadKey().Key)
-            {
-                case ConsoleKey.Y:
-                    try
-                    {
-                        Directory.CreateDirectory(path);
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"An error occurred: {ex.Message}");
-                        Console.WriteLine("Press anything to exit...");
-                        Console.ReadKey();
-                        return;
-                    }
-                    break;
-
-                default:
-                    return;
-            }
         }
 
         static void Main(string[] args)
@@ -45,22 +30,13 @@ namespace NameFromGame
                 switch (args.Length)
                 {
                     case 1:
-                        if (Directory.Exists(args[0]))
-                        {
-                            savePath = args[0];
-                            movePath = Path.Combine(savePath, "~Clips");
-                        }
+                        savePath = args[0];
+                        movePath = Path.Combine(savePath, "~Clips");
                         break;
 
                     case 2:
-                        savePath = Directory.Exists(args[0]) ? args[0] : string.Empty;
-                        movePath = Directory.Exists(args[1]) ? args[1] : string.Empty;
-
-                        if (string.IsNullOrEmpty(savePath))
-                        {
-                            Console.WriteLine($"'{savePath}' doesn't exist or couldn't be found. Please enter a valid directory");
-                            return;
-                        }
+                        savePath = args[0];
+                        movePath = args[1];
                         break;
 
                     default:
@@ -68,9 +44,34 @@ namespace NameFromGame
                         break;
                 }
             }
-            if (string.IsNullOrEmpty(movePath) || !Directory.Exists(movePath))
+            if (!Directory.Exists(savePath))
             {
-                CreateFolder(movePath);
+                Console.WriteLine($"'{savePath}' doesn't exist or couldn't be found. Please enter a valid directory");
+                return;
+            }
+
+            if (!Directory.Exists(movePath))
+            {
+                Console.Write($"The specified path to move to, '{movePath}', doesn't exist or couldn't be found. Would you like the program to create it for you? (y/N): ");
+                switch (Console.ReadKey().Key)
+                {
+                    case ConsoleKey.Y:
+                        try
+                        {
+                            Directory.CreateDirectory(movePath);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"An error occurred: {ex.Message}");
+                            Console.WriteLine("Press anything to exit...");
+                            Console.ReadKey();
+                            return;
+                        }
+                        break;
+
+                    default:
+                        break;
+                }
             }
 
             var watcher = new Watcher(savePath, movePath);
