@@ -29,14 +29,43 @@ namespace NameFromGame
                         break;
 
                     case 2:
-                    // both directories given
+                        savePath = Directory.Exists(args[0]) ? args[0] : null;
+                        movePath = Directory.Exists(args[1]) ? args[1] : null;
+
+                        if (string.IsNullOrEmpty(savePath))
+                        {
+                            Console.WriteLine($"'{savePath}' doesn't exist or couldn't be found. Please enter a valid directory");
+                            return;
+                        } else if(string.IsNullOrEmpty(movePath))
+                        {
+                            Console.Write($"'{movePath}' doesn't exist or couldn't be found. Would you like the program to create it for you? (y/N)");
+                            switch (Console.ReadKey().Key)
+                            {
+                                case ConsoleKey.Y:
+                                    try
+                                    {
+                                        Directory.CreateDirectory(movePath);
+                                    } catch (Exception ex)
+                                    {
+                                        Console.WriteLine($"An error occurred: {ex.Message}");
+                                        Console.WriteLine("Press anything to exit...");
+                                        Console.ReadKey();
+                                        return;
+                                    }
+                                    break;
+
+                                default:
+                                    return;
+                            }
+                        }
+                        break;
 
                     default:
                         // display usage
                         break;
                 }
             }
-            var watcher = new Watcher(savePath);
+            var watcher = new Watcher(savePath, movePath);
             watcher.EnableRaisingEvents = true; // Starts the watcher
             string name;
             while (!(Console.KeyAvailable && Console.ReadKey(true).Key == ConsoleKey.Escape))
