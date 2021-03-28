@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 
 namespace WatcherLibrary
 {
@@ -8,6 +9,13 @@ namespace WatcherLibrary
     /// </summary>
     public class Watcher : FileSystemWatcher
     {
+        private string _moveToDirectory;
+
+        public string MovePath
+        {
+            get => _moveToDirectory;
+        }
+
         /// <summary>
         /// Instantiates a <see cref="Watcher"/> with a given directory, watching for changes in all files.
         /// </summary>
@@ -22,6 +30,8 @@ namespace WatcherLibrary
         /// <param name="filter">Filter</param>
         public Watcher(string watchDirectory, string moveToDirectory, string filter) : base(watchDirectory, filter)
         {
+            _moveToDirectory = moveToDirectory;
+
             NotifyFilter = NotifyFilters.Attributes
                                  | NotifyFilters.CreationTime
                                  | NotifyFilters.DirectoryName
@@ -59,7 +69,18 @@ namespace WatcherLibrary
             return true;
         }
 
-        private static void OnChanged(object sender, FileSystemEventArgs e)
+        /// <summary>
+        /// Checks if a file is a video file
+        /// </summary>
+        /// <param name="file">File to check</param>
+        /// <returns>Boolean representing if the file is a video or not</returns>
+        public static bool IsFileVideo(FileInfo file)
+        {
+            string[] videoExtensions = { ".mp4", ".flv", ".mov", ".mkv", ".ts", ".m3u8", ".avi" }; // common video extensions
+            return videoExtensions.Contains(file.Extension);
+        }
+
+        private void OnChanged(object sender, FileSystemEventArgs e)
         {
             if (e.ChangeType != WatcherChangeTypes.Changed)
             {
@@ -67,7 +88,14 @@ namespace WatcherLibrary
             }
             var file = new FileInfo(e.FullPath);
             Console.WriteLine($"[{DateTime.Now.ToLongTimeString()}] Changed: {file.FullName}");
-            Console.WriteLine($"\tIs Available: {IsFileAccessible(file)}");
+            //Console.WriteLine($"\tIs Available: {IsFileAccessible(file)}");
+
+            if (IsFileVideo(file) && IsFileAccessible(file))
+            {
+                Directory.CreateDirectory(MovePath);
+                File.Move(file.FullName, System.IO.Path.Combine(MovePath, file.Name));
+                Console.WriteLine($"[{DateTime.Now.ToLongTimeString()}] {file.FullName} -> {System.IO.Path.Combine(MovePath, file.Name)}");
+            }
         }
 
         private static void OnCreated(object sender, FileSystemEventArgs e)
