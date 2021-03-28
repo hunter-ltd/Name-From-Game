@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using WindowsTools;
 
@@ -92,14 +93,18 @@ namespace WatcherLibrary
             Console.WriteLine($"[{DateTime.Now.ToLongTimeString()}] Changed: {file.FullName}");
             //Console.WriteLine($"\tIs Available: {IsFileAccessible(file)}");
 
-            if (IsFileVideo(file) && IsFileAccessible(file))
+            while (true)
             {
-                string windowTitle = Regex.Replace(User32Dll.GetActiveWindowTitle(80), $@"[{new string(System.IO.Path.GetInvalidFileNameChars()) + new string(System.IO.Path.GetInvalidPathChars())}]", "");
-                string uniqueMovePath = System.IO.Path.Combine(MovePath, windowTitle);
+                if (IsFileVideo(file) && IsFileAccessible(file))
+                {
+                    string windowTitle = Regex.Replace(User32Dll.GetActiveWindowTitle(80), $@"[{new string(System.IO.Path.GetInvalidFileNameChars()) + new string(System.IO.Path.GetInvalidPathChars())}]", "");
+                    string uniqueMovePath = System.IO.Path.Combine(MovePath, windowTitle);
 
-                Directory.CreateDirectory(uniqueMovePath);
-                File.Move(file.FullName, System.IO.Path.Combine(uniqueMovePath, windowTitle + " " + file.Name));
-                Console.WriteLine($"[{DateTime.Now.ToLongTimeString()}] {file.FullName} -> {System.IO.Path.Combine(uniqueMovePath, file.Name)}");
+                    Directory.CreateDirectory(uniqueMovePath);
+                    File.Move(file.FullName, System.IO.Path.Combine(uniqueMovePath, windowTitle + " " + file.Name));
+                    Console.WriteLine($"[{DateTime.Now.ToLongTimeString()}] {file.FullName} -> {System.IO.Path.Combine(uniqueMovePath, file.Name)}");
+                    break;
+                }
             }
         }
 
