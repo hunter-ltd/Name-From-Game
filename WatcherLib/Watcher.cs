@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Diagnostics;
 using System.Text.RegularExpressions;
 using WindowsTools;
 
@@ -10,12 +11,16 @@ namespace WatcherLib
     /// A derived class of <see cref="FileSystemWatcher"/>.
     /// </summary>
     public class Watcher : FileSystemWatcher
-    {    
-        private string _moveToDirectory;
+    { 
+        string _moveToDirectory;
 
+        /// <summary>
+        /// Gets or sets the path to which files will be moved by the watcher
+        /// </summary>
         public string MovePath
         {
             get => _moveToDirectory;
+            set => _moveToDirectory = value;
         }
 
         /// <summary>
@@ -33,6 +38,7 @@ namespace WatcherLib
         public Watcher(string watchDirectory, string moveToDirectory, string filter) : base(watchDirectory, filter)
         {
             _moveToDirectory = moveToDirectory;
+            Logger _ = new Logger(watchDirectory);
 
             NotifyFilter = NotifyFilters.Attributes
                                  | NotifyFilters.CreationTime
@@ -43,9 +49,6 @@ namespace WatcherLib
                                  | NotifyFilters.Size;
 
             Changed += OnChanged;
-            Created += OnCreated;
-            Deleted += OnDeleted;
-            Renamed += OnRenamed;
             Error += OnError;
         }
 
@@ -89,42 +92,42 @@ namespace WatcherLib
                 return;
             }
             var file = new FileInfo(e.FullPath);
-            Console.WriteLine($"[{DateTime.Now.ToLongTimeString()}] Changed: {file.FullName}");
-            //Console.WriteLine($"\tIs Available: {IsFileAccessible(file)}");
 
             while (IsFileVideo(file))
             {
                 if (IsFileAccessible(file))
                 {
+                    Trace.WriteLine($"[{DateTime.Now.ToLongTimeString()}] File being moved...");
                     string windowTitle = Regex.Replace(User32Dll.GetActiveWindowTitle(80), $@"[{new string(System.IO.Path.GetInvalidFileNameChars()) + new string(System.IO.Path.GetInvalidPathChars())}]", "");
+                    Trace.WriteLine($"[{DateTime.Now.ToLongTimeString()}]\tWindow title: " + windowTitle);
+                    
                     string uniqueMovePath = System.IO.Path.Combine(MovePath, windowTitle);
+                    Trace.WriteLine($"[{DateTime.Now.ToLongTimeString()}]\tOld path: " + file.FullName);
 
                     Directory.CreateDirectory(uniqueMovePath);
-                    try {
-                        File.Move(file.FullName, System.IO.Path.Combine(uniqueMovePath, windowTitle + " " + file.Name));
-                    } catch (IOException ex) {
+                    uniqueMovePath = System.IO.Path.Combine(uniqueMovePath, windowTitle + " " + file.Name);
+                    Trace.WriteLine($"[{DateTime.Now.ToLongTimeString()}]\tNew path: " + uniqueMovePath);
+                    string moveSuccess = string.Empty;
+                    try 
+                    {
+                        File.Move(file.FullName, uniqueMovePath);
+                        moveSuccess = "File moved successfully!";
+                    } 
+                    catch (IOException ex) 
+                    {
+                        moveSuccess = "File move failed.";
                         Console.WriteLine(ex.Message);
+                        Trace.WriteLine($"[{DateTime.Now.ToLongTimeString()}]\tERROR: " + ex.Message);
+                    } 
+                    finally
+                    {
+                        Console.WriteLine($"[{DateTime.Now.ToLongTimeString()}] {moveSuccess}");
+                        Trace.WriteLine($"[{DateTime.Now.ToLongTimeString()}] {moveSuccess}");
+                        Trace.WriteLine("");
                     }
-                    Console.WriteLine($"[{DateTime.Now.ToLongTimeString()}] {file.FullName} -> {System.IO.Path.Combine(uniqueMovePath, file.Name)}");
                     break;
                 }
             }
-        }
-
-        private static void OnCreated(object sender, FileSystemEventArgs e)
-        {
-            string value = $"[{DateTime.Now.ToLongTimeString()}] Created: {e.FullPath}";
-            Console.WriteLine(value);
-        }
-
-        private static void OnDeleted(object sender, FileSystemEventArgs e) =>
-            Console.WriteLine($"[{DateTime.Now.ToLongTimeString()}] Deleted: {e.FullPath}");
-
-        private static void OnRenamed(object sender, RenamedEventArgs e)
-        {
-            Console.WriteLine($"[{DateTime.Now.ToLongTimeString()}] Renamed:");
-            Console.WriteLine($"\tOld: {e.OldFullPath}");
-            Console.WriteLine($"\tNew: {e.FullPath}");
         }
 
         private static void OnError(object sender, ErrorEventArgs e) =>
@@ -134,10 +137,11 @@ namespace WatcherLib
         {
             if (ex != null)
             {
-                Console.WriteLine($"[{DateTime.Now.ToLongTimeString()}] Message: {ex.Message}");
-                Console.WriteLine("Stacktrace:");
-                Console.WriteLine(ex.StackTrace);
-                Console.WriteLine();
+                Console.WriteLine("A major error occurred with the file system watcher. Check the log in the watch directory for more details");
+                Trace.WriteLine($"[{DateTime.Now.ToLongTimeString()}] Message: {ex.Message}");
+                Trace.WriteLine("Stacktrace:");
+                Trace.WriteLine(ex.StackTrace);
+                Trace.WriteLine("");
                 PrintException(ex.InnerException);
             }
         }

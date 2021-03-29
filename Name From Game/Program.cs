@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Diagnostics;
 using WatcherLib;
 
 namespace NameFromGame
@@ -45,6 +46,7 @@ namespace NameFromGame
             Console.WriteLine($"Path to move files to: {Path.Combine(movePath, "<game name>")}");
             Console.Write("Press anything to start...");
             Console.ReadKey();
+            Console.WriteLine("\nClick into this window and press Esc at any time to stop the program.");
 
             watcher.EnableRaisingEvents = true; // Starts the watcher
             while (!(Console.KeyAvailable && Console.ReadKey(true).Key == ConsoleKey.Escape))
@@ -57,6 +59,7 @@ namespace NameFromGame
             }
             watcher.EnableRaisingEvents = false; // Stops the watcher
             watcher.Dispose();
+            Trace.Close();
         }
     }
 }

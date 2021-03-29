@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\WindowsTools\WindowsTools.csproj" />
+    <ProjectReference Include="..\JsonLoggerLib\JsonLoggerLib.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
