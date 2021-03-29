@@ -21,7 +21,7 @@ namespace NameFromGame
                 {
                     case 1:
                         savePath = args[0];
-                        movePath = Path.Combine(savePath, "~Clips");
+                        movePath = args[0];
                         break;
 
                     case 2:
@@ -41,8 +41,12 @@ namespace NameFromGame
             }
 
             var watcher = new Watcher(savePath, movePath);
+            Console.WriteLine($"Path to watch: {savePath}");
+            Console.WriteLine($"Path to move files to: {Path.Combine(movePath, "<game name>")}");
+            Console.Write("Press anything to start...");
+            Console.ReadKey();
+
             watcher.EnableRaisingEvents = true; // Starts the watcher
-            string name;
             while (!(Console.KeyAvailable && Console.ReadKey(true).Key == ConsoleKey.Escape))
             {
                 //name = User32Dll.GetActiveWindowTitle(80);
