@@ -1,11 +1,10 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using WindowsTools;
 
-namespace WatcherLibrary
+namespace WatcherLib
 {
     /// <summary>
     /// A derived class of <see cref="FileSystemWatcher"/>.

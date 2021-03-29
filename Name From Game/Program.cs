@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using WatcherLibrary;
+using WatcherLib;
 
 namespace NameFromGame
 {
@@ -49,11 +49,11 @@ namespace NameFromGame
             watcher.EnableRaisingEvents = true; // Starts the watcher
             while (!(Console.KeyAvailable && Console.ReadKey(true).Key == ConsoleKey.Escape))
             {
-                //name = User32Dll.GetActiveWindowTitle(80);
-                //if (name != null)
-                //{
-                //    //Console.Write($"\r{name.PadRight(80)}");
-                //}
+                // string name = User32Dll.GetActiveWindowTitle(80);
+                // if (name != null)
+                // {
+                //    Console.Write($"\r{name.PadRight(80)}");
+                // }
             }
             watcher.EnableRaisingEvents = false; // Stops the watcher
             watcher.Dispose();
