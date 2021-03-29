@@ -11,7 +11,7 @@ namespace WatcherLibrary
     /// A derived class of <see cref="FileSystemWatcher"/>.
     /// </summary>
     public class Watcher : FileSystemWatcher
-    {
+    {    
         private string _moveToDirectory;
 
         public string MovePath
@@ -93,15 +93,19 @@ namespace WatcherLibrary
             Console.WriteLine($"[{DateTime.Now.ToLongTimeString()}] Changed: {file.FullName}");
             //Console.WriteLine($"\tIs Available: {IsFileAccessible(file)}");
 
-            while (true)
+            while (IsFileVideo(file))
             {
-                if (IsFileVideo(file) && IsFileAccessible(file))
+                if (IsFileAccessible(file))
                 {
                     string windowTitle = Regex.Replace(User32Dll.GetActiveWindowTitle(80), $@"[{new string(System.IO.Path.GetInvalidFileNameChars()) + new string(System.IO.Path.GetInvalidPathChars())}]", "");
                     string uniqueMovePath = System.IO.Path.Combine(MovePath, windowTitle);
 
                     Directory.CreateDirectory(uniqueMovePath);
-                    File.Move(file.FullName, System.IO.Path.Combine(uniqueMovePath, windowTitle + " " + file.Name));
+                    try {
+                        File.Move(file.FullName, System.IO.Path.Combine(uniqueMovePath, windowTitle + " " + file.Name));
+                    } catch (IOException ex) {
+                        Console.WriteLine(ex.Message);
+                    }
                     Console.WriteLine($"[{DateTime.Now.ToLongTimeString()}] {file.FullName} -> {System.IO.Path.Combine(uniqueMovePath, file.Name)}");
                     break;
                 }
