@@ -18,15 +18,14 @@ namespace NameFromGame
                 movePath = @".\~Clips";
             } else
             {
+                savePath = args[0];
                 switch (args.Length)
                 {
                     case 1:
-                        savePath = args[0];
                         movePath = args[0];
                         break;
 
                     case 2:
-                        savePath = args[0];
                         movePath = args[1];
                         break;
 
@@ -37,8 +36,9 @@ namespace NameFromGame
             }
             if (!Directory.Exists(savePath))
             {
-                Console.WriteLine($"'{savePath}' doesn't exist or couldn't be found. Please enter a valid directory");
-                return;
+                Console.WriteLine($"'{savePath}' doesn't exist or couldn't be found. Falling back on current working directory...");
+                savePath = @".\";
+                movePath = @".\~Clips";
             }
 
             var watcher = new Watcher(savePath, movePath);
