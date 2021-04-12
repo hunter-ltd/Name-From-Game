@@ -9,14 +9,9 @@ namespace NameFromGame
     {
         static void Main(string[] args)
         {
-            string savePath = string.Empty,
-                movePath = string.Empty;
-            if (args.Length == 0)
-            {
-                // use current directory
-                savePath = @".\";
-                movePath = @".\~Clips";
-            } else
+            string savePath = Path.Combine(Environment.GetEnvironmentVariable("USERPROFILE"), "Videos"),
+                movePath = Path.Combine(savePath, "Clips");
+            if (args.Length > 0)
             {
                 savePath = args[0];
                 switch (args.Length)
@@ -36,9 +31,7 @@ namespace NameFromGame
             }
             if (!Directory.Exists(savePath))
             {
-                Console.WriteLine($"'{savePath}' doesn't exist or couldn't be found. Falling back on current working directory...");
-                savePath = @".\";
-                movePath = @".\~Clips";
+                Console.WriteLine($"'{savePath}' doesn't exist or couldn't be found. Falling back on default videos folder...");
             }
 
             var watcher = new Watcher(savePath, movePath);
