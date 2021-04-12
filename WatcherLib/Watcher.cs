@@ -50,6 +50,8 @@ namespace WatcherLib
 
             Changed += OnChanged;
             Error += OnError;
+
+            RenameTable renameTable = new RenameTable(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "names.rmap"));
         }
 
         /// <summary>
