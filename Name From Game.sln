@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Name From Game", "Name From Game\Name From Game.csproj", "{421F48FB-1C1F-4739-89FD-8C4BD95DBFF3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WatcherLib", "WatcherLib\WatcherLib.csproj", "{07286D17-818C-4B0C-8624-AAFF09C739DA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsTools", "WindowsTools\WindowsTools.csproj", "{8A54B1B5-5305-4BCF-9E5C-2119A8FAA53B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{421F48FB-1C1F-4739-89FD-8C4BD95DBFF3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{421F48FB-1C1F-4739-89FD-8C4BD95DBFF3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{421F48FB-1C1F-4739-89FD-8C4BD95DBFF3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{421F48FB-1C1F-4739-89FD-8C4BD95DBFF3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{07286D17-818C-4B0C-8624-AAFF09C739DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07286D17-818C-4B0C-8624-AAFF09C739DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07286D17-818C-4B0C-8624-AAFF09C739DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07286D17-818C-4B0C-8624-AAFF09C739DA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A54B1B5-5305-4BCF-9E5C-2119A8FAA53B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A54B1B5-5305-4BCF-9E5C-2119A8FAA53B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A54B1B5-5305-4BCF-9E5C-2119A8FAA53B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A54B1B5-5305-4BCF-9E5C-2119A8FAA53B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
