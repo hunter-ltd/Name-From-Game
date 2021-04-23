@@ -9,8 +9,8 @@ namespace NameFromGame
     {
         static void Main(string[] args)
         {
-            string savePath = string.Empty,
-                movePath = string.Empty;
+            string savePath,
+                movePath;
             if (args.Length == 0)
             {
                 // default video folder

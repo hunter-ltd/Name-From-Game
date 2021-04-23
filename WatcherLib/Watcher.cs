@@ -11,22 +11,17 @@ namespace WatcherLib
     /// A derived class of <see cref="FileSystemWatcher"/>.
     /// </summary>
     public class Watcher : FileSystemWatcher
-    { 
-        string _moveToDirectory;
-
+    {
         /// <summary>
         /// Gets or sets the path to which files will be moved by the watcher
         /// </summary>
-        public string MovePath
-        {
-            get => _moveToDirectory;
-            set => _moveToDirectory = value;
-        }
+        public string MovePath { get; set; }
 
         /// <summary>
         /// Instantiates a <see cref="Watcher"/> with a given directory, watching for changes in all files.
         /// </summary>
         /// <param name="watchDirectory">Directory to watch</param>
+        /// <param name="moveToDirectory">Directory to move files to</param>
         public Watcher(string watchDirectory, string moveToDirectory) : this(watchDirectory, moveToDirectory, string.Empty)
         { }
 
@@ -34,10 +29,11 @@ namespace WatcherLib
         /// Instantiates a <see cref="Watcher"/> with a given directory, watching for changes only in files that match the specified filter.
         /// </summary>
         /// <param name="watchDirectory">Directory to watch</param>
+        /// <param name="moveToDirectory">Directory to move files to</param>
         /// <param name="filter">Filter</param>
         public Watcher(string watchDirectory, string moveToDirectory, string filter) : base(watchDirectory, filter)
         {
-            _moveToDirectory = moveToDirectory;
+            MovePath = moveToDirectory;
             Logger _ = new Logger(watchDirectory);
 
             NotifyFilter = NotifyFilters.Attributes
@@ -51,7 +47,9 @@ namespace WatcherLib
             Changed += OnChanged;
             Error += OnError;
 
-            RenameTable renameTable = new RenameTable(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "names.rmap"));
+            RenameTable renameTable = new RenameTable(System.IO.Path.Combine(
+                System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), 
+                "names.rmap"));
         }
 
         /// <summary>
@@ -64,10 +62,8 @@ namespace WatcherLib
             try
             {
                 // Tries to open a read-only stream on the file.
-                using (FileStream stream = file.OpenRead())
-                {
-                    stream.Close();
-                }
+                using FileStream stream = file.OpenRead();
+                stream.Close();
             } catch (IOException)
             {
                 // If the file is already open, it throws an IOException
