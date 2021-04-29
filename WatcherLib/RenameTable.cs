@@ -27,32 +27,19 @@ namespace WatcherLib
         }
 
         /// <summary>
-        /// Synchronously writes a single new entry into the rename table file
+        /// Synchronously writes a single new entry into the rename table
         /// </summary>
-        /// <param name="name">Entry name parameter</param>
-        public void WriteNewEntry(string name)
+        /// <param name="key">Key to be added</param>
+        /// <param name="value">Value to be associated with the key</param>
+        public bool WriteNewEntry(string key, string value)
         {
             StreamWriter writer = new StreamWriter(TablePath, true); // Opens a new writer in append mode
-            foreach (string line in new[] {name, "", ""})
+            foreach (string line in new[] {key, value, ""})
             {
                 writer.WriteLine(line);
             }
             writer.Close();
-        }
-
-        /// <summary>
-        /// Asynchronously writes a single new entry into the rename table file
-        /// </summary>
-        /// <param name="name">Entry name parameter</param>
-        /// <returns></returns>
-        public async void WriteNewEntryAsync(string name)
-        {
-            StreamWriter writer = new StreamWriter(TablePath, true); // Opens a new writer in append mode
-            foreach (string line in new[] {name, "", ""})
-            {
-                await writer.WriteLineAsync(line);
-            }
-            writer.Close();
+            return TryAdd(key, value);
         }
     }
 }
