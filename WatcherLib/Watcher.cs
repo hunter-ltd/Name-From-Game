@@ -65,7 +65,7 @@ namespace WatcherLib
                 while (!_stop)
                 {
                     MoveFromQueue();
-                    Thread.Sleep(2000); // every 2 seconds, try to clear out the list
+                    Thread.Sleep(1000); // every second, try to clear out the list
                 }
             });
         }
