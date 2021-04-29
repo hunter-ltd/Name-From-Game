@@ -61,8 +61,7 @@ namespace NameFromGame
                 //    Console.Write($"\r{name.PadRight(80)}");
                 // }
             }
-            watcher.EnableRaisingEvents = false; // Stops the watcher
-            watcher.Dispose();
+            watcher.Stop();
             Trace.Close();
         }
     }

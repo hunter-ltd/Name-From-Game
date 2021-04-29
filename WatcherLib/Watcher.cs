@@ -23,6 +23,7 @@ namespace WatcherLib
         public RenameTable RenameTable { get; }
         public Task MoveTask { get; }
 
+        private bool _stop = false;
         private readonly LinkedList<FileInfo> _fileInfos = new();
 
         /// <summary>
@@ -58,11 +59,14 @@ namespace WatcherLib
             RenameTable = new RenameTable(System.IO.Path.Combine(
                 System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), 
                 "names.rmap"));
-            
+
             MoveTask = Task.Run(() =>
             {
-                MoveFromQueue();
-                Thread.Sleep(2000); // every 2 seconds, try to clear out the list
+                while (!_stop)
+                {
+                    MoveFromQueue();
+                    Thread.Sleep(2000); // every 2 seconds, try to clear out the list
+                }
             });
         }
 
@@ -106,13 +110,34 @@ namespace WatcherLib
             return videoExtensions.Contains(file.Extension);
         }
 
+        public void Stop()
+        {
+            try
+            {
+                EnableRaisingEvents = false;
+                _stop = true;
+                MoveTask.Wait();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error: " + e.Message);
+            }
+            finally
+            {
+                MoveTask.Dispose();
+                Dispose();
+            }
+        }
+
         private void OnChanged(object sender, FileSystemEventArgs e)
         {
             if (e.ChangeType != WatcherChangeTypes.Changed)
             {
                 return;
             }
-            _fileInfos.AddLast(new FileInfo(e.FullPath));
+
+            var file = new FileInfo(e.FullPath);
+            if (IsFileVideo(file)) _fileInfos.AddLast(file);
         }
 
         private void MoveFromQueue()
