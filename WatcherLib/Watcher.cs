@@ -21,7 +21,7 @@ namespace WatcherLib
         public string MovePath { get; set; }
         
         public RenameTable RenameTable { get; }
-        public Task MoveTask { get; }
+        private Task MoveTask { get; }
 
         private bool _stop = false;
         private readonly LinkedList<FileInfo> _fileInfos = new();
