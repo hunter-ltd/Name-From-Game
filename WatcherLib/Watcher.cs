@@ -16,6 +16,8 @@ namespace WatcherLib
         /// Gets or sets the path to which files will be moved by the watcher
         /// </summary>
         public string MovePath { get; set; }
+        
+        public RenameTable RenameTable { get; }
 
         /// <summary>
         /// Instantiates a <see cref="Watcher"/> with a given directory, watching for changes in all files.
@@ -47,7 +49,7 @@ namespace WatcherLib
             Changed += OnChanged;
             Error += OnError;
 
-            RenameTable renameTable = new RenameTable(System.IO.Path.Combine(
+            RenameTable = new RenameTable(System.IO.Path.Combine(
                 System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), 
                 "names.rmap"));
         }
@@ -96,15 +98,18 @@ namespace WatcherLib
                 if (IsFileAccessible(file))
                 {
                     Trace.WriteLine($"[{DateTime.Now.ToLongTimeString()}] File being moved...");
-                    string windowTitle = Regex.Replace(User32Dll.GetActiveWindowTitle(80), $@"[{new string(System.IO.Path.GetInvalidFileNameChars()) + new string(System.IO.Path.GetInvalidPathChars())}]", "");
-                    Trace.WriteLine($"[{DateTime.Now.ToLongTimeString()}]\tWindow title: " + windowTitle);
+                    string windowTitle = Regex.Replace(User32Dll.GetActiveWindowTitle(80), 
+                        $@"[{new string(System.IO.Path.GetInvalidFileNameChars()) + new string(System.IO.Path.GetInvalidPathChars())}]", "");
+                    Trace.WriteLine($"[{DateTime.Now.ToLongTimeString()}]\tWindow title: {windowTitle}");
+
+                    windowTitle = RenameTable.TryAdd(windowTitle, windowTitle) ? windowTitle : RenameTable[windowTitle];
                     
                     string uniqueMovePath = System.IO.Path.Combine(MovePath, windowTitle);
-                    Trace.WriteLine($"[{DateTime.Now.ToLongTimeString()}]\tOld path: " + file.FullName);
+                    Trace.WriteLine($"[{DateTime.Now.ToLongTimeString()}]\tOld path: {file.FullName}");
 
                     Directory.CreateDirectory(uniqueMovePath);
                     uniqueMovePath = System.IO.Path.Combine(uniqueMovePath, windowTitle + " " + file.Name);
-                    Trace.WriteLine($"[{DateTime.Now.ToLongTimeString()}]\tNew path: " + uniqueMovePath);
+                    Trace.WriteLine($"[{DateTime.Now.ToLongTimeString()}]\tNew path: {uniqueMovePath}");
                     string moveSuccess = string.Empty;
                     try 
                     {
@@ -115,7 +120,7 @@ namespace WatcherLib
                     {
                         moveSuccess = "File move failed.";
                         Console.WriteLine(ex.Message);
-                        Trace.WriteLine($"[{DateTime.Now.ToLongTimeString()}]\tERROR: " + ex.Message);
+                        Trace.WriteLine($"[{DateTime.Now.ToLongTimeString()}]\tERROR: {ex.Message}");
                     } 
                     finally
                     {
