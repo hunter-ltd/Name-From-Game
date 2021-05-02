@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -21,7 +22,7 @@ namespace WatcherLib
         private string MovePath { get; set; }
         
         private RenameTable RenameTable { get; }
-        private Task MoveTask { get; set; }
+        private Task MoveTask { get; }
 
         private readonly CancellationTokenSource _tokenSource = new();
         private volatile LinkedList<FileInfo> _fileInfos = new();
@@ -57,8 +58,17 @@ namespace WatcherLib
             Error += OnError;
 
             RenameTable = new RenameTable(System.IO.Path.Combine(
-                System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), 
+                AppContext.BaseDirectory, 
                 "names.rmap"));
+
+            MoveTask = new Task(() =>
+            {
+                while (!_tokenSource.Token.IsCancellationRequested)
+                {
+                    MoveFromQueue();
+                    Thread.Sleep(1000); // allows time for the files to be moved
+                }
+            }, _tokenSource.Token);
         }
 
         /// <summary>
@@ -104,15 +114,7 @@ namespace WatcherLib
         public void Start()
         {
             EnableRaisingEvents = true;
-            
-            MoveTask = Task.Run(() =>
-            {
-                    while (!_tokenSource.Token.IsCancellationRequested)
-                    {
-                        MoveFromQueue();
-                        Thread.Sleep(1000); // allows time for the files to be moved
-                    }
-            }, _tokenSource.Token);
+            MoveTask.Start();
         }
 
         public void Stop()
