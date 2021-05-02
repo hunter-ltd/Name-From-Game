@@ -27,7 +27,7 @@ namespace WatcherLib
                 {
                     Add(lines[i], lines[i + 1]);
                 }
-                catch (IndexOutOfRangeException e)
+                catch (IndexOutOfRangeException)
                 {
                     // ignored
                     // Happens if there's an extra newline or two at the end of the file
