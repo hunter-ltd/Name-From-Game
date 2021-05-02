@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -22,7 +23,15 @@ namespace WatcherLib
             string[] lines = File.ReadAllLines(TablePath);
             for (int i = 0; i < lines.Length; i+=2)
             {
-                Add(lines[i], lines[i + 1]);
+                try
+                {
+                    Add(lines[i], lines[i + 1]);
+                }
+                catch (IndexOutOfRangeException e)
+                {
+                    // ignored
+                    // Happens if there's an extra newline or two at the end of the file
+                }
             }
         }
 
@@ -33,13 +42,16 @@ namespace WatcherLib
         /// <param name="value">Value to be associated with the key</param>
         public bool WriteNewEntry(string key, string value)
         {
-            StreamWriter writer = new StreamWriter(TablePath, true); // Opens a new writer in append mode
-            foreach (string line in new[] {key, value, ""})
+            var keyExists = TryAdd(key, value);
+            if (!keyExists) return false;
+            
+            var writer = new StreamWriter(TablePath, true); // Opens a new writer in append mode
+            foreach (var line in new[] {key, value, ""})
             {
                 writer.WriteLine(line);
             }
             writer.Close();
-            return TryAdd(key, value);
+            return true;
         }
     }
 }
