@@ -14,7 +14,7 @@ namespace NameFromGame
             if (args.Length == 0)
             {
                 // default video folder
-                savePath = Path.Combine(Environment.GetEnvironmentVariable("USERPROFILE"), "Videos");
+                savePath = Path.Combine(Environment.GetEnvironmentVariable("USERPROFILE")!, "Videos");
                 movePath = Path.Combine(savePath, "Clips");
             }
             else
@@ -41,7 +41,7 @@ namespace NameFromGame
             {
                 Console.WriteLine($"'{savePath}' doesn't exist or couldn't be found. Falling back on default videos folder...");
                 // default video folder
-                savePath = Path.Combine(Environment.GetEnvironmentVariable("USERPROFILE"), "Videos");
+                savePath = Path.Combine(Environment.GetEnvironmentVariable("USERPROFILE")!, "Videos");
                 movePath = Path.Combine(savePath, "Clips");
             }
 
@@ -52,7 +52,7 @@ namespace NameFromGame
             Console.ReadKey();
             Console.WriteLine("\nClick into this window and press Esc at any time to stop the program.");
 
-            watcher.EnableRaisingEvents = true; // Starts the watcher
+            watcher.Start(); // Starts the watcher
             while (!(Console.KeyAvailable && Console.ReadKey(true).Key == ConsoleKey.Escape))
             {
                 // string name = User32Dll.GetActiveWindowTitle(80);
