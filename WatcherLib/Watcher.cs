@@ -21,10 +21,10 @@ namespace WatcherLib
         public string MovePath { get; set; }
         
         public RenameTable RenameTable { get; }
-        private Task MoveTask { get; }
+        private Task MoveTask { get; set; }
 
-        private bool _stop = false;
-        private readonly LinkedList<FileInfo> _fileInfos = new();
+        private readonly CancellationTokenSource _tokenSource = new();
+        private volatile LinkedList<FileInfo> _fileInfos = new();
 
         /// <summary>
         /// Instantiates a <see cref="Watcher"/> with a given directory, watching for changes in all files.
@@ -59,15 +59,6 @@ namespace WatcherLib
             RenameTable = new RenameTable(System.IO.Path.Combine(
                 System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), 
                 "names.rmap"));
-
-            MoveTask = Task.Run(() =>
-            {
-                while (!_stop)
-                {
-                    MoveFromQueue();
-                    Thread.Sleep(1000); // every second, try to clear out the list
-                }
-            });
         }
 
         /// <summary>
@@ -75,7 +66,7 @@ namespace WatcherLib
         /// </summary>
         /// <param name="file">File to check</param>
         /// <returns>Boolean representing if the file is available for read/write operations</returns>
-        public static bool IsFileAccessible(FileInfo file)
+        private static bool IsFileAccessible(FileInfo file)
         {
             try
             {
@@ -95,7 +86,7 @@ namespace WatcherLib
         /// </summary>
         /// <param name="file">File to check</param>
         /// <returns>Boolean representing if the file is a video or not</returns>
-        public static bool IsFileVideo(FileInfo file)
+        private static bool IsFileVideo(FileInfo file)
         {
             var videoExtensions = new[]
             {
@@ -110,12 +101,26 @@ namespace WatcherLib
             return videoExtensions.Contains(file.Extension);
         }
 
+        public void Start()
+        {
+            EnableRaisingEvents = true;
+            
+            MoveTask = Task.Run(() =>
+            {
+                    while (!_tokenSource.Token.IsCancellationRequested)
+                    {
+                        MoveFromQueue();
+                        Thread.Sleep(1000); // allows time for the files to be moved
+                    }
+            }, _tokenSource.Token);
+        }
+
         public void Stop()
         {
             try
             {
                 EnableRaisingEvents = false;
-                _stop = true;
+                _tokenSource.Cancel();
                 MoveTask.Wait();
             }
             catch (Exception e)
@@ -143,6 +148,8 @@ namespace WatcherLib
         private void MoveFromQueue()
         {
             if (_fileInfos.Count == 0) return; // Do nothing if the LinkedList is empty
+
+            var moved = new LinkedList<FileInfo>();
             foreach (var file in _fileInfos.Where(IsFileAccessible))
             {
                 Trace.WriteLine($"[{DateTime.Now.ToLongTimeString()}] File being moved...");
@@ -151,7 +158,7 @@ namespace WatcherLib
                     "");
                 Trace.WriteLine($"[{DateTime.Now.ToLongTimeString()}]\tWindow title: {windowTitle}");
 
-                windowTitle = RenameTable.TryAdd(windowTitle, windowTitle) ? windowTitle : RenameTable[windowTitle];
+                windowTitle = RenameTable.WriteNewEntry(windowTitle, windowTitle) ? windowTitle : RenameTable[windowTitle];
 
                 var uniqueMovePath = System.IO.Path.Combine(MovePath, windowTitle);
                 Trace.WriteLine($"[{DateTime.Now.ToLongTimeString()}]\tOld path: {file.FullName}");
@@ -163,7 +170,7 @@ namespace WatcherLib
                 try
                 {
                     File.Move(file.FullName, uniqueMovePath);
-                    _fileInfos.Remove(file);
+                    moved.AddFirst(file); // prepending is faster if the next prop of the node is readonly
                     moveSuccessMessage = $"{file.Name} moved successfully!";
                 }
                 catch (IOException ex)
@@ -178,6 +185,11 @@ namespace WatcherLib
                     Trace.WriteLine($"[{DateTime.Now.ToLongTimeString()}] {moveSuccessMessage}");
                     Trace.WriteLine("");
                 }
+            }
+
+            foreach (var fileInfo in moved)
+            {
+                _fileInfos.Remove(fileInfo); // remove the files that have been moved from the queue
             }
         }
 
