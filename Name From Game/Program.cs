@@ -7,42 +7,26 @@ namespace NameFromGame
 {
     class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
-            string savePath,
-                movePath;
-            if (args.Length == 0)
-            {
-                // default video folder
-                savePath = Path.Combine(Environment.GetEnvironmentVariable("USERPROFILE")!, "Videos");
+            // default video folder
+            string savePath = Path.Combine(Environment.GetEnvironmentVariable("USERPROFILE")!, "Videos"),
                 movePath = Path.Combine(savePath, "Clips");
-            }
-            else
+            if (args.Length > 0)
             {
                 savePath = args[0];
-                switch (args.Length)
-                {
-                    case 1:
-                        movePath = args[0];
-                        break;
-
-                    case 2:
-                        movePath = args[1];
-                        break;
-
-                    default:
-                        Console.WriteLine("usage: nfg.exe [<save-path>] [<move-path>]");
-                        Console.WriteLine("  save path (optional)\t\tWhere you save your videos and where this program will watch");
-                        Console.WriteLine("  move path (optional)\t\tWhere the renamed files will be moved");
-                        return;
-                }
+                movePath = args[^1]; // args.Length - 1, not seen as bitwise XOR but instead syntactic sugar
             }
+            
+            if (args.Length > 2)
+            {
+                DisplayHelp();
+                return;
+            }
+            
             if (!Directory.Exists(savePath))
             {
                 Console.WriteLine($"'{savePath}' doesn't exist or couldn't be found. Falling back on default videos folder...");
-                // default video folder
-                savePath = Path.Combine(Environment.GetEnvironmentVariable("USERPROFILE")!, "Videos");
-                movePath = Path.Combine(savePath, "Clips");
             }
 
             var watcher = new Watcher(savePath, movePath);
@@ -63,6 +47,13 @@ namespace NameFromGame
             }
             watcher.Stop();
             Trace.Close();
+        }
+
+        private static void DisplayHelp()
+        {
+            Console.WriteLine("usage: nfg.exe [<save-path>] [<move-path>]");
+            Console.WriteLine("  save path (optional)\t\tWhere you save your videos and where this program will watch");
+            Console.WriteLine("  move path (optional)\t\tWhere the renamed files will be moved");
         }
     }
 }
