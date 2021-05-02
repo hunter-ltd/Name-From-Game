@@ -18,9 +18,9 @@ namespace WatcherLib
         /// <summary>
         /// Gets or sets the path to which files will be moved by the watcher
         /// </summary>
-        public string MovePath { get; set; }
+        private string MovePath { get; set; }
         
-        public RenameTable RenameTable { get; }
+        private RenameTable RenameTable { get; }
         private Task MoveTask { get; set; }
 
         private readonly CancellationTokenSource _tokenSource = new();
@@ -40,7 +40,7 @@ namespace WatcherLib
         /// <param name="watchDirectory">Directory to watch</param>
         /// <param name="moveToDirectory">Directory to move files to</param>
         /// <param name="filter">Filter</param>
-        public Watcher(string watchDirectory, string moveToDirectory, string filter) : base(watchDirectory, filter)
+        private Watcher(string watchDirectory, string moveToDirectory, string filter) : base(watchDirectory, filter)
         {
             MovePath = moveToDirectory;
             Logger _ = new(watchDirectory);
@@ -198,13 +198,16 @@ namespace WatcherLib
 
         private static void PrintException(Exception? ex)
         {
-            if (ex == null) return;
-            Console.WriteLine("A major error occurred with the file system watcher. Check the log in the watch directory for more details");
-            Trace.WriteLine($"[{DateTime.Now.ToLongTimeString()}] Message: {ex.Message}");
-            Trace.WriteLine("Stacktrace:");
-            Trace.WriteLine(ex.StackTrace);
-            Trace.WriteLine("");
-            PrintException(ex.InnerException);
+            while (true)
+            {
+                if (ex == null) return;
+                Console.WriteLine("A major error occurred with the file system watcher. Check the log in the watch directory for more details");
+                Trace.WriteLine($"[{DateTime.Now.ToLongTimeString()}] Message: {ex.Message}");
+                Trace.WriteLine("Stacktrace:");
+                Trace.WriteLine(ex.StackTrace);
+                Trace.WriteLine("");
+                ex = ex.InnerException;
+            }
         }
     }
 }

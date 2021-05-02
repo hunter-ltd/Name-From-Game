@@ -6,7 +6,7 @@ namespace WatcherLib
 {
     public class RenameTable : Dictionary<string, string>
     {
-        public string TablePath { get; }
+        private string TablePath { get; }
 
         /// <summary>
         /// Creates a rename table from a given file
@@ -20,8 +20,8 @@ namespace WatcherLib
                 File.CreateText(TablePath).Close();
             }
 
-            string[] lines = File.ReadAllLines(TablePath);
-            for (int i = 0; i < lines.Length; i+=2)
+            var lines = File.ReadAllLines(TablePath);
+            for (var i = 0; i < lines.Length; i+=2)
             {
                 try
                 {
