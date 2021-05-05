@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -44,7 +43,7 @@ namespace WatcherLib
         private Watcher(string watchDirectory, string moveToDirectory, string filter) : base(watchDirectory, filter)
         {
             MovePath = moveToDirectory;
-            Logger _ = new(watchDirectory);
+            Logger.Start(watchDirectory);
 
             NotifyFilter = NotifyFilters.Attributes
                            | NotifyFilters.CreationTime
@@ -154,20 +153,20 @@ namespace WatcherLib
             var moved = new LinkedList<FileInfo>();
             foreach (var file in _fileInfos.Where(IsFileAccessible))
             {
-                Trace.WriteLine($"[{DateTime.Now.ToLongTimeString()}] File being moved...");
+                Logger.WriteMessage("File being moved...");
                 var windowTitle = Regex.Replace(User32Dll.GetActiveWindowTitle(80),
                     $@"[{new string(System.IO.Path.GetInvalidFileNameChars()) + new string(System.IO.Path.GetInvalidPathChars())}]",
                     "");
-                Trace.WriteLine($"[{DateTime.Now.ToLongTimeString()}]\tWindow title: {windowTitle}");
+                Logger.WriteMessage($"Window title: {windowTitle}", 1);
 
                 windowTitle = RenameTable.WriteNewEntry(windowTitle, windowTitle) ? windowTitle : RenameTable[windowTitle];
 
                 var uniqueMovePath = System.IO.Path.Combine(MovePath, windowTitle);
-                Trace.WriteLine($"[{DateTime.Now.ToLongTimeString()}]\tOld path: {file.FullName}");
+                Logger.WriteMessage($"Old path: {file.FullName}", 1);
 
                 Directory.CreateDirectory(uniqueMovePath);
                 uniqueMovePath = System.IO.Path.Combine(uniqueMovePath, windowTitle + " " + file.Name);
-                Trace.WriteLine($"[{DateTime.Now.ToLongTimeString()}]\tNew path: {uniqueMovePath}");
+                Logger.WriteMessage($"New path: {uniqueMovePath}", 1);
                 var moveSuccessMessage = string.Empty;
                 try
                 {
@@ -178,14 +177,14 @@ namespace WatcherLib
                 catch (IOException ex)
                 {
                     moveSuccessMessage = $"{file.Name} move failed.";
-                    Console.WriteLine(ex.Message);
-                    Trace.WriteLine($"[{DateTime.Now.ToLongTimeString()}]\tERROR: {ex.Message}");
+                    Console.WriteLine($"Error: {ex.Message}");
+                    Logger.WriteException(ex);
                 }
                 finally
                 {
                     Console.WriteLine($"[{DateTime.Now.ToLongTimeString()}] {moveSuccessMessage}");
-                    Trace.WriteLine($"[{DateTime.Now.ToLongTimeString()}] {moveSuccessMessage}");
-                    Trace.WriteLine("");
+                    Logger.WriteMessage(moveSuccessMessage);
+                    Logger.WriteMessage(null);
                 }
             }
 
@@ -200,16 +199,8 @@ namespace WatcherLib
 
         private static void PrintException(Exception? ex)
         {
-            while (true)
-            {
-                if (ex == null) return;
-                Console.WriteLine("A major error occurred with the file system watcher. Check the log in the watch directory for more details");
-                Trace.WriteLine($"[{DateTime.Now.ToLongTimeString()}] Message: {ex.Message}");
-                Trace.WriteLine("Stacktrace:");
-                Trace.WriteLine(ex.StackTrace);
-                Trace.WriteLine("");
-                ex = ex.InnerException;
-            }
+            Console.WriteLine("A major error occurred with the file system watcher. Check the log in the watch directory for more details");
+            Logger.WriteException(ex);
         }
     }
 }
