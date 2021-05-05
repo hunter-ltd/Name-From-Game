@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.IO;
 using System.Diagnostics;
@@ -22,8 +23,14 @@ namespace WatcherLib
         /// <param name="message">Message to write</param>
         /// <param name="tabs">How far to indent the message (default is 0)</param>
         /// <param name="timeStamp">Whether or not to timestamp the message (default is true)</param>
-        public void WriteNewMessage(string message, int tabs = 0, bool timeStamp = true)
+        public void WriteMessage(string? message, int tabs = 0, bool timeStamp = true)
         {
+            if (message == null)
+            {
+                Trace.WriteLine(null);
+                return;
+            }
+            
             var messageBuilder = new StringBuilder();
             
             if (timeStamp) 
@@ -31,6 +38,33 @@ namespace WatcherLib
             for (var _ = 0; _ < tabs; _++) messageBuilder.Append('\t'); // add tabs (if any)
             
             messageBuilder.Append(message); // add message
+            Trace.WriteLine(messageBuilder.ToString());
+        }
+
+        /// <summary>
+        /// Writes an exception to the log file, optionally timestamped and with a stacktrace
+        /// </summary>
+        /// <param name="exception">Exception</param>
+        /// <param name="timeStamp">Whether or not to timestamp the exception (default is true)</param>
+        /// <param name="stacktrace">Whether or not to write the stacktrace (default is true)</param>
+        public void WriteException(Exception? exception, bool timeStamp = true, bool stacktrace = true)
+        {
+            var messageBuilder = new StringBuilder();
+            
+            if (timeStamp)
+                messageBuilder.Append(DateTime.Now.ToLongTimeString()).Append(' '); // prepend timestamp and a space
+
+
+            while (exception != null)
+            {
+                messageBuilder.Append("An error occured: ").Append(exception.Message).Append('\n'); // append the exception
+
+                if (stacktrace)
+                    messageBuilder.Append("Stacktrace:").Append('\n').Append(exception.StackTrace).Append('\n');
+
+                exception = exception.InnerException;
+            }
+            
             Trace.WriteLine(messageBuilder.ToString());
         }
     }
