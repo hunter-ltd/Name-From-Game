@@ -8,9 +8,13 @@ namespace WatcherLib
 {
     public class Logger
     {
-        public Logger(string parentPath)
+        /// <summary>
+        /// Starts the logger in a file
+        /// </summary>
+        /// <param name="logFilePath">Folder to place log file in</param>
+        public static void Start(string logFilePath)
         {
-            var logFile = new StreamWriter(Path.Combine(parentPath, "nameFromGame.log"), true);
+            var logFile = new StreamWriter(Path.Combine(logFilePath, "nameFromGame.log"), true);
             Trace.Listeners.Add(new TextWriterTraceListener(logFile));
             Trace.AutoFlush = true;
             Trace.WriteLine("[START] Name From Game Log on " + 
@@ -23,7 +27,7 @@ namespace WatcherLib
         /// <param name="message">Message to write</param>
         /// <param name="tabs">How far to indent the message (default is 0)</param>
         /// <param name="timeStamp">Whether or not to timestamp the message (default is true)</param>
-        public void WriteMessage(string? message, int tabs = 0, bool timeStamp = true)
+        public static void WriteMessage(string? message, int tabs = 0, bool timeStamp = true)
         {
             if (message == null)
             {
@@ -47,7 +51,7 @@ namespace WatcherLib
         /// <param name="exception">Exception</param>
         /// <param name="timeStamp">Whether or not to timestamp the exception (default is true)</param>
         /// <param name="stacktrace">Whether or not to write the stacktrace (default is true)</param>
-        public void WriteException(Exception? exception, bool timeStamp = true, bool stacktrace = true)
+        public static void WriteException(Exception? exception, bool timeStamp = true, bool stacktrace = true)
         {
             var messageBuilder = new StringBuilder();
             
