@@ -19,15 +19,10 @@ namespace WindowsTools
         /// <returns>Title of active window as a string that is <c>maxLength</c> characters long</returns>
         public static string GetActiveWindowTitle(int maxLength)
         {
-            StringBuilder buffer = new StringBuilder(maxLength);
+            var buffer = new StringBuilder(maxLength);
             IntPtr windowHandle = GetForegroundWindow();
 
-            if (GetWindowTextA(windowHandle, buffer, maxLength) > 0)
-            {
-                return buffer.ToString();
-            }
-
-            return null;
+            return GetWindowTextA(windowHandle, buffer, maxLength) > 0 ? buffer.ToString() : null;
         }
     }
 }
