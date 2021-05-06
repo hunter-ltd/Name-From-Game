@@ -9,6 +9,15 @@ namespace WatcherLib
     public class Logger
     {
         /// <summary>
+        /// Returns the current datetime as shown with ToLongTimeString surrounded with square brackets
+        /// </summary>
+        /// <returns>Long time string</returns>
+        private static string GetTimestamp()
+        {
+            return $"[{DateTime.Now.ToLongTimeString()}]";
+        }
+
+        /// <summary>
         /// Starts the logger in a file
         /// </summary>
         /// <param name="logFilePath">Folder to place log file in</param>
@@ -38,7 +47,7 @@ namespace WatcherLib
             var messageBuilder = new StringBuilder();
             
             if (timeStamp) 
-                messageBuilder.Append(DateTime.Now.ToLongTimeString()).Append(' '); // prepend timestamp and a space
+                messageBuilder.Append(GetTimestamp()).Append(' '); // prepend timestamp and a space
             for (var _ = 0; _ < tabs; _++) messageBuilder.Append('\t'); // add tabs (if any)
             
             messageBuilder.Append(message); // add message
@@ -56,7 +65,7 @@ namespace WatcherLib
             var messageBuilder = new StringBuilder();
             
             if (timeStamp)
-                messageBuilder.Append(DateTime.Now.ToLongTimeString()).Append(' '); // prepend timestamp and a space
+                messageBuilder.Append(GetTimestamp()).Append(' '); // prepend timestamp and a space
 
 
             while (exception != null)
