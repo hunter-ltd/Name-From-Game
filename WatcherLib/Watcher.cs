@@ -154,7 +154,7 @@ namespace WatcherLib
             foreach (var file in _fileInfos.Where(IsFileAccessible))
             {
                 Logger.WriteMessage("File being moved...");
-                var windowTitle = Regex.Replace(User32Dll.GetActiveWindowTitle(80),
+                var windowTitle = Regex.Replace(User32Dll.GetActiveWindowTitle(80).Trim(),
                     $@"[{new string(System.IO.Path.GetInvalidFileNameChars()) + new string(System.IO.Path.GetInvalidPathChars())}]",
                     "");
                 Logger.WriteMessage($"Window title: {windowTitle}", 1);
